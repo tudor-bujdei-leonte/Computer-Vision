@@ -9,8 +9,9 @@ hands = mpHands.Hands(max_num_hands=2)
 mpDraw = mp.solutions.drawing_utils
 
 fingertips = [4, 8, 12, 16, 20]
-pointer_tip = 8
-pointer_trail = []
+tip_trails = {}
+for fingertip in fingertips:
+    tip_trails[fingertip] = []
 
 pTime = 0
 frames = 0
@@ -32,16 +33,18 @@ while True:
             #     cx, cy = int(w*landmark.x), int(h*landmark.y)
             #     cv2.circle(image, (cx, cy), 10, (255, 0, 255), cv2.FILLED)
 
-            pointer_tip_lm = hand_landmark.landmark[pointer_tip]
-            cx, cy = int(w * pointer_tip_lm.x), int(h * pointer_tip_lm.y)
-            # shouldn't be fps-tied
-            pointer_trail.append({"pos": (cx, cy), "lifetime": 30})
-            for x in pointer_trail:
-                if x["lifetime"] == 0:
-                    pointer_trail.remove(x)
-                else:
-                    cv2.circle(image, x["pos"], 5, (255, 0, 255), cv2.FILLED)
-                    x["lifetime"] -= 1
+            for fingertip in [8]:
+                tip_lm = hand_landmark.landmark[fingertip]
+                cx, cy = int(w * tip_lm.x), int(h * tip_lm.y)
+                tip_trails[fingertip].append(
+                    {"pos": (cx, cy), "lifetime": 90})
+                for x in tip_trails[fingertip]:
+                    if x["lifetime"] == 0:
+                        tip_trails[fingertip].remove(x)
+                    else:
+                        cv2.circle(image, x["pos"], 5,
+                                   (255, 0, 255), cv2.FILLED)
+                        x["lifetime"] -= 1
 
             mpDraw.draw_landmarks(image, hand_landmark,
                                   mpHands.HAND_CONNECTIONS)
